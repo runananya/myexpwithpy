@@ -1,0 +1,55 @@
+ARTHMETIC CODING
+
+import numpy as np
+from collections import Counter
+
+def calfreq(data):
+    freq = Counter(data)
+    total = len(data)
+    pro = {k: v / total for k, v in freq.items()}
+    return pro
+
+def cul_prob(pro):
+    cum_prob = {}
+    total = 0
+    for symbol, prob in sorted(pro.items()):
+        cum_prob[symbol] = (total, total + prob)
+        total += prob
+    return cum_prob
+
+def encode(data, cum_prob):
+    low, high = 0.0, 1.0
+    for symbol in data:
+        range = high - low
+        high = low + range * cum_prob[symbol][1]
+        low = low + range * cum_prob[symbol][0]
+    return (low + high) / 2
+
+def decode(encoval, cum_prob, length):
+    decoddata = []
+    value = encoval
+    for _ in range(length):
+        for symbol, (low, high) in cum_prob.items():
+            if low <= value < high:
+                decoddata.append(symbol)
+                value = (value - low) / (high - low)
+                break
+    return ''.join(decoddata)
+
+
+if __name__ == "__main__":
+    data = "right by you"
+    print(f"Original data: {data}")
+
+    
+    pro = calfreq(data)
+    cum_prob = cul_prob(pro)
+    print(f"Cumulative probabilities: {cum_prob}")
+
+    
+    encoval = encode(data, cum_prob)
+    print(f"Encoded value: {encoval}")
+
+   
+    decoddata = decode(encoval, cum_prob, len(data))
+    print(f"Decoded data: {decoddata}")
